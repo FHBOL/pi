@@ -1,0 +1,180 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "coding-agent 分层架构",
+    "subtitle": "L0 Entry → L1 Modes → L2 Orchestration → L3 AgentSession → L4 Core → L5 External",
+    "output": "coding-agent-architecture.html",
+    "quality_profile": "showcase",
+    "visual_preset": "blueprint",
+    "views": [
+      {
+        "id": "layers",
+        "label": "分层总览",
+        "focus": ["entry", "modes", "orch", "session", "agent", "llm"],
+        "note": "自上而下：入口与模式只做 I/O，会话门面在中层，Agent 循环对接模型与工具。"
+      },
+      {
+        "id": "core",
+        "label": "L4 内核并行",
+        "focus": ["session", "agent", "managers", "tools"],
+        "note": "AgentSession 同时挂接 Agent 循环、Managers 与 Tools。"
+      },
+      {
+        "id": "io",
+        "label": "外部边界",
+        "focus": ["modes", "tui", "agent", "llm", "tools", "workspace"],
+        "note": "TUI / LLM Providers / FS·bash 是真正的副作用边界。"
+      }
+    ]
+  },
+  "components": [
+    {
+      "id": "entry",
+      "type": "external",
+      "label": "L0 Entry",
+      "sublabel": "cli · main · rpc-entry · index",
+      "pos": [520, 40],
+      "size": [220, 56]
+    },
+    {
+      "id": "modes",
+      "type": "frontend",
+      "label": "L1 Modes",
+      "sublabel": "interactive · print · rpc",
+      "pos": [520, 160],
+      "size": [220, 60],
+      "tag": "I/O only"
+    },
+    {
+      "id": "tui",
+      "type": "frontend",
+      "label": "pi-tui",
+      "sublabel": "Editor · Markdown",
+      "pos": [860, 160],
+      "size": [150, 56],
+      "tag": "interactive"
+    },
+    {
+      "id": "orch",
+      "type": "backend",
+      "label": "L2 Orchestration",
+      "sublabel": "Services · createAgentSession · Runtime",
+      "pos": [520, 290],
+      "size": [220, 64]
+    },
+    {
+      "id": "session",
+      "type": "backend",
+      "label": "L3 AgentSession",
+      "sublabel": "prompt · events · compaction",
+      "pos": [520, 420],
+      "size": [220, 68],
+      "tag": "session facade"
+    },
+    {
+      "id": "agent",
+      "type": "backend",
+      "label": "Agent",
+      "sublabel": "pi-agent-core loop",
+      "pos": [300, 580],
+      "size": [160, 60],
+      "tag": "L4a"
+    },
+    {
+      "id": "managers",
+      "type": "database",
+      "label": "Managers",
+      "sublabel": "Session · Settings · ModelRuntime · Loader",
+      "pos": [520, 580],
+      "size": [220, 60],
+      "tag": "L4b"
+    },
+    {
+      "id": "tools",
+      "type": "backend",
+      "label": "Tools",
+      "sublabel": "read · bash · edit · write",
+      "pos": [820, 580],
+      "size": [160, 60],
+      "tag": "L4c"
+    },
+    {
+      "id": "llm",
+      "type": "external",
+      "label": "LLM Providers",
+      "sublabel": "pi-ai · custom providers",
+      "pos": [300, 740],
+      "size": [160, 56],
+      "tag": "L5"
+    },
+    {
+      "id": "config",
+      "type": "cloud",
+      "label": "Config / Auth",
+      "sublabel": "~/.pi/agent · .pi",
+      "pos": [540, 740],
+      "size": [180, 56],
+      "tag": "L5"
+    },
+    {
+      "id": "workspace",
+      "type": "database",
+      "label": "Workspace I/O",
+      "sublabel": "FS · bash · sessions",
+      "pos": [820, 740],
+      "size": [160, 56],
+      "tag": "L5"
+    }
+  ],
+  "boundaries": [
+    {
+      "kind": "region",
+      "label": "packages/coding-agent",
+      "wraps": ["modes", "orch", "session", "agent", "managers", "tools"]
+    },
+    {
+      "kind": "security-group",
+      "label": "L4 Core（并行）",
+      "wraps": ["agent", "managers", "tools"]
+    }
+  ],
+  "connections": [
+    { "id": "entry-modes", "from": "entry", "to": "modes", "variant": "emphasis", "fromSide": "bottom", "toSide": "top" },
+    { "id": "modes-orch", "from": "modes", "to": "orch", "variant": "emphasis", "fromSide": "bottom", "toSide": "top" },
+    { "id": "orch-session", "from": "orch", "to": "session", "variant": "emphasis", "fromSide": "bottom", "toSide": "top" },
+    { "id": "session-agent", "from": "session", "to": "agent", "variant": "emphasis", "fromSide": "bottom", "toSide": "top" },
+    { "id": "session-managers", "from": "session", "to": "managers", "fromSide": "bottom", "toSide": "top" },
+    { "id": "session-tools", "from": "session", "to": "tools", "fromSide": "bottom", "toSide": "top" },
+    { "id": "modes-tui", "from": "modes", "to": "tui", "variant": "dashed" },
+    { "id": "agent-llm", "from": "agent", "to": "llm", "variant": "emphasis", "fromSide": "bottom", "toSide": "top" },
+    { "id": "managers-config", "from": "managers", "to": "config", "variant": "dashed", "fromSide": "bottom", "toSide": "top" },
+    { "id": "tools-workspace", "from": "tools", "to": "workspace", "fromSide": "bottom", "toSide": "top" }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "分层职责",
+      "items": [
+        "L0/L1：进程入口与 I/O 适配，不拥有业务",
+        "L2/L3：组装 runtime，AgentSession 是唯一会话 API"
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "L4 内核",
+      "items": [
+        "Agent：provider 无关的 prompt→LLM→tool 循环",
+        "Managers / Tools：持久化、配置、扩展与本地副作用"
+      ]
+    },
+    {
+      "dot": "violet",
+      "title": "L5 外部",
+      "items": [
+        "pi-tui 仅服务 interactive",
+        "pi-ai providers、FS/bash、~/.pi 配置与会话存储"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,97 @@
+{
+  "schema_version": 1,
+  "diagram_type": "sequence",
+  "meta": {
+    "title": "CreateAgentSessionRuntimeFactory 调用流程",
+    "subtitle": "main → createAgentSessionRuntime → factory → services/session → AgentSessionRuntime",
+    "output": "create-runtime-factory.html",
+    "viewBox": [980, 860],
+    "quality_profile": "showcase",
+    "visual_preset": "signal-flow",
+    "views": [
+      {
+        "id": "enter",
+        "label": "进入与校验",
+        "focus": ["main", "host", "factory"],
+        "note": "main 传入 factory；host 校验 cwd 后调用 factory。"
+      },
+      {
+        "id": "build",
+        "label": "工厂构建",
+        "focus": ["factory", "settings", "services", "sdk"],
+        "note": "Settings/trust → createAgentSessionServices → options → createAgentSession。"
+      },
+      {
+        "id": "wrap",
+        "label": "包装与复用",
+        "focus": ["factory", "host", "runtime", "main"],
+        "note": "host 构造 AgentSessionRuntime，并保存同一 factory 供后续复用。"
+      }
+    ]
+  },
+  "participants": [
+    { "id": "main", "type": "frontend", "label": "main.ts", "sublabel": "CLI entry" },
+    { "id": "host", "type": "backend", "label": "RuntimeHost", "sublabel": "createRuntime" },
+    { "id": "factory", "type": "backend", "label": "Factory", "sublabel": "factory body" },
+    { "id": "settings", "type": "security", "label": "Settings", "sublabel": "trust + cfg" },
+    { "id": "services", "type": "cloud", "label": "Services", "sublabel": "cwd-bound" },
+    { "id": "sdk", "type": "backend", "label": "SDK", "sublabel": "createSession" },
+    { "id": "runtime", "type": "messagebus", "label": "Runtime", "sublabel": "session host" }
+  ],
+  "segments": [
+    { "from": 150, "to": 245, "label": "Enter" },
+    { "from": 265, "to": 540, "label": "Factory body" },
+    { "from": 560, "to": 760, "label": "Wrap + reuse" }
+  ],
+  "messages": [
+    { "id": "m1", "from": "main", "to": "host", "y": 175, "label": "createAgentSessionRuntime(factory, opts)", "variant": "emphasis" },
+    { "id": "m2", "from": "host", "to": "main", "y": 215, "label": "assertSessionCwdExists", "variant": "security" },
+    { "id": "m3", "from": "host", "to": "factory", "y": 255, "label": "factory({ cwd, agentDir, sm })", "variant": "emphasis" },
+    { "id": "m4", "from": "factory", "to": "settings", "y": 300, "label": "SettingsManager.create + trust", "variant": "security" },
+    { "id": "m5", "from": "settings", "to": "factory", "y": 335, "label": "settingsManager", "variant": "return" },
+    { "id": "m6", "from": "factory", "to": "services", "y": 375, "label": "createAgentSessionServices", "variant": "emphasis" },
+    { "id": "m7", "from": "services", "to": "factory", "y": 415, "label": "modelRuntime · loader", "variant": "return" },
+    { "id": "m8", "from": "factory", "to": "settings", "y": 455, "label": "resolveModelScope + options", "variant": "default" },
+    { "id": "m9", "from": "factory", "to": "services", "y": 495, "label": "setRuntimeApiKey? (optional)", "variant": "dashed" },
+    { "id": "m10", "from": "factory", "to": "sdk", "y": 535, "label": "createAgentSessionFromServices", "variant": "emphasis" },
+    { "id": "m11", "from": "sdk", "to": "factory", "y": 575, "label": "session", "variant": "return" },
+    { "id": "m12", "from": "factory", "to": "host", "y": 615, "label": "{ session, services, diagnostics }", "variant": "return" },
+    { "id": "m13", "from": "host", "to": "runtime", "y": 655, "label": "new AgentSessionRuntime(+factory)", "variant": "emphasis" },
+    { "id": "m14", "from": "runtime", "to": "main", "y": 695, "label": "return runtime", "variant": "return" },
+    { "id": "m15", "from": "runtime", "to": "factory", "y": 740, "label": "later: /new /resume /fork", "variant": "dashed" }
+  ],
+  "activations": [
+    { "participant": "host", "from": 175, "to": 665, "type": "backend" },
+    { "participant": "factory", "from": 255, "to": 625, "type": "backend" },
+    { "participant": "settings", "from": 300, "to": 470, "type": "security" },
+    { "participant": "services", "from": 375, "to": 430, "type": "cloud" },
+    { "participant": "sdk", "from": 535, "to": 585, "type": "backend" },
+    { "participant": "runtime", "from": 655, "to": 760, "type": "messagebus" }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "入口",
+      "items": [
+        "main.ts 定义 CreateAgentSessionRuntimeFactory 闭包",
+        "createAgentSessionRuntime 校验 cwd 后调用 factory"
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "工厂体",
+      "items": [
+        "Settings + createAgentSessionServices（cwd-bound）",
+        "buildSessionOptions 后 createAgentSessionFromServices → SDK"
+      ]
+    },
+    {
+      "dot": "violet",
+      "title": "结果",
+      "items": [
+        "AgentSessionRuntime 持有 session + services + factory",
+        "会话切换复用同一 factory"
+      ]
+    }
+  ]
+}

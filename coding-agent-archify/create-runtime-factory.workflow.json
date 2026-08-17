@@ -1,0 +1,94 @@
+{
+  "schema_version": 1,
+  "diagram_type": "workflow",
+  "meta": {
+    "title": "CreateAgentSessionRuntimeFactory 流程图",
+    "subtitle": "define → invoke → assert → factory → services/options → session → runtime",
+    "output": "create-runtime-factory.html",
+    "quality_profile": "showcase",
+    "visual_preset": "signal-flow",
+    "views": [
+      {
+        "id": "happy-path",
+        "label": "主路径",
+        "focus": ["define", "invoke", "assert", "factory", "services", "create", "wrap"],
+        "note": "从上到下：入口 → 工厂 → 服务与选项 → 会话 → Runtime。"
+      },
+      {
+        "id": "factory-body",
+        "label": "工厂内部",
+        "focus": ["factory", "services", "create"],
+        "note": "createAgentSessionServices → buildSessionOptions → createAgentSessionFromServices。"
+      },
+      {
+        "id": "reuse",
+        "label": "后续复用",
+        "focus": ["wrap", "reuse"],
+        "note": "Runtime 保存同一 factory，供 /new /resume /fork /import 使用。"
+      }
+    ]
+  },
+  "lanes": [
+    { "id": "cli", "label": "CLI / main.ts" },
+    { "id": "host", "label": "Runtime Host" },
+    { "id": "factory", "label": "Factory Body" },
+    { "id": "sdk", "label": "Services / SDK" },
+    { "id": "result", "label": "Session Runtime" },
+    { "id": "side", "label": "Later Reuse", "variant": "exception" }
+  ],
+  "phases": [
+    { "id": "enter", "label": "Enter", "fromCol": 0, "toCol": 1 },
+    { "id": "build", "label": "Build", "fromCol": 2, "toCol": 4, "variant": "emphasis" },
+    { "id": "finish", "label": "Wrap", "fromCol": 5, "toCol": 5, "variant": "dashed" }
+  ],
+  "groups": [
+    { "id": "build_group", "label": "Factory builds session", "lane": "factory", "fromCol": 2, "toCol": 3, "variant": "emphasis" },
+    { "id": "reuse_group", "label": "Stored for later", "lane": "side", "fromCol": 5, "toCol": 5, "variant": "security" }
+  ],
+  "mainPath": ["define", "invoke", "assert", "factory", "services", "create", "wrap"],
+  "nodes": [
+    { "id": "define", "lane": "cli", "col": 0, "type": "frontend", "label": "Define Factory", "sublabel": "CLI closure" },
+    { "id": "invoke", "lane": "cli", "col": 1, "type": "frontend", "label": "Invoke Host", "sublabel": "createRuntime()" },
+    { "id": "assert", "lane": "host", "col": 2, "type": "security", "label": "Assert CWD", "sublabel": "must exist", "tag": "guard" },
+    { "id": "factory", "lane": "factory", "col": 2, "type": "backend", "label": "Call Factory", "sublabel": "cwd · agentDir" },
+    { "id": "services", "lane": "sdk", "col": 3, "type": "cloud", "label": "Make Services", "sublabel": "opts · runtime", "tag": "cwd-bound" },
+    { "id": "create", "lane": "result", "col": 4, "type": "backend", "label": "Make Session", "sublabel": "FromServices", "tag": "AgentSession" },
+    { "id": "wrap", "lane": "result", "col": 5, "type": "backend", "label": "Wrap Runtime", "sublabel": "keep factory" },
+    { "id": "reuse", "lane": "side", "col": 5, "type": "messagebus", "label": "Reuse Later", "sublabel": "new/resume/fork" }
+  ],
+  "edges": [
+    { "from": "define", "to": "invoke" },
+    { "from": "invoke", "to": "assert", "variant": "emphasis", "route": "drop", "fromSide": "bottom", "toSide": "top" },
+    { "from": "assert", "to": "factory", "variant": "emphasis", "route": "drop", "fromSide": "bottom", "toSide": "top" },
+    { "from": "factory", "to": "services", "variant": "emphasis", "route": "drop", "fromSide": "bottom", "toSide": "top" },
+    { "from": "services", "to": "create", "variant": "emphasis", "route": "drop", "fromSide": "bottom", "toSide": "top" },
+    { "from": "create", "to": "wrap" },
+    { "from": "wrap", "to": "reuse", "variant": "dashed", "role": "return", "route": "drop", "fromSide": "bottom", "toSide": "top" }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "入口",
+      "items": [
+        "main.ts 定义 CreateAgentSessionRuntimeFactory",
+        "createAgentSessionRuntime 校验 cwd 后调用 factory"
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "工厂体",
+      "items": [
+        "createAgentSessionServices + buildSessionOptions",
+        "createAgentSessionFromServices → createAgentSession"
+      ]
+    },
+    {
+      "dot": "violet",
+      "title": "结果",
+      "items": [
+        "AgentSessionRuntime 持有 session + services + factory",
+        "/new /resume /fork /import 复用同一 factory"
+      ]
+    }
+  ]
+}
