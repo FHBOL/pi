@@ -550,6 +550,7 @@ export class InteractiveMode {
 		});
 		this.runtimeHost.setRebindSession(async () => {
 			await this.rebindCurrentSession({ renderBeforeBind: true });
+			
 			await this.themeController.applyFromSettings();
 		});
 		this.version = VERSION;

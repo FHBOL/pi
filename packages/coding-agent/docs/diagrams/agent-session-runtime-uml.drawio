@@ -1,0 +1,111 @@
+<mxfile host="drawio" version="26.0.0">
+  <diagram id="asr-uml" name="AgentSessionRuntime UML">
+    <mxGraphModel dx="1600" dy="1100" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1680" pageHeight="1120" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <mxCell id="title" value="AgentSessionRuntime UML 类图" style="text;html=1;align=left;verticalAlign=middle;fontSize=18;fontStyle=1;fontColor=#333333;" vertex="1" parent="1">
+          <mxGeometry x="40" y="20" width="520" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="subtitle" value="单槽持有当前 session + services；替换时覆盖槽，不 new 自身" style="text;html=1;align=left;verticalAlign=middle;fontSize=12;fontColor=#666666;" vertex="1" parent="1">
+          <mxGeometry x="40" y="50" width="520" height="20" as="geometry" />
+        </mxCell>
+
+        <mxCell id="factory" value="&lt;p style=&quot;margin:6px 0 4px 0;text-align:center;&quot;&gt;&lt;i&gt;&amp;laquo;type&amp;raquo;&lt;/i&gt;&lt;br/&gt;&lt;b&gt;CreateAgentSessionRuntimeFactory&lt;/b&gt;&lt;/p&gt;&lt;hr size=&quot;1&quot;/&gt;&lt;p style=&quot;margin:8px 10px;font-size:11px;line-height:1.45;&quot;&gt;(options: {&lt;br/&gt;&amp;nbsp;&amp;nbsp;cwd: string&lt;br/&gt;&amp;nbsp;&amp;nbsp;agentDir: string&lt;br/&gt;&amp;nbsp;&amp;nbsp;sessionManager: SessionManager&lt;br/&gt;&amp;nbsp;&amp;nbsp;sessionStartEvent?: SessionStartEvent&lt;br/&gt;&amp;nbsp;&amp;nbsp;projectTrustContext?: ProjectTrustContext&lt;br/&gt;}) → Promise&amp;lt;CreateAgentSessionRuntimeResult&amp;gt;&lt;/p&gt;" style="verticalAlign=top;align=left;overflow=fill;html=1;whiteSpace=wrap;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="40" y="90" width="400" height="230" as="geometry" />
+        </mxCell>
+
+        <mxCell id="runtime" value="&lt;p style=&quot;margin:8px 0 6px 0;text-align:center;&quot;&gt;&lt;b&gt;AgentSessionRuntime&lt;/b&gt;&lt;/p&gt;&lt;hr size=&quot;1&quot;/&gt;&lt;p style=&quot;margin:6px 10px;font-size:11px;line-height:1.5;&quot;&gt;- rebindSession?: (session) → Promise&amp;lt;void&amp;gt;&lt;br/&gt;- beforeSessionInvalidate?: () → void&lt;br/&gt;- _session: AgentSession&lt;br/&gt;- _services: AgentSessionServices&lt;br/&gt;- createRuntime: CreateAgentSessionRuntimeFactory&lt;br/&gt;- _diagnostics: Diagnostic[]&lt;br/&gt;- _modelFallbackMessage?: string&lt;br/&gt;+ session: AgentSession&amp;nbsp;&amp;nbsp;{readonly}&lt;br/&gt;+ services: AgentSessionServices&amp;nbsp;&amp;nbsp;{readonly}&lt;br/&gt;+ cwd: string&amp;nbsp;&amp;nbsp;{readonly}&lt;br/&gt;+ diagnostics: readonly Diagnostic[]&amp;nbsp;&amp;nbsp;{readonly}&lt;br/&gt;+ modelFallbackMessage?: string&amp;nbsp;&amp;nbsp;{readonly}&lt;/p&gt;&lt;hr size=&quot;1&quot;/&gt;&lt;p style=&quot;margin:6px 10px;font-size:11px;line-height:1.5;&quot;&gt;+ constructor(session, services, factory, diagnostics?, fallback?)&lt;br/&gt;+ setRebindSession(cb?): void&lt;br/&gt;+ setBeforeSessionInvalidate(cb?): void&lt;br/&gt;+ switchSession(path, options?): Promise&amp;lt;{cancelled}&amp;gt;&lt;br/&gt;+ newSession(options?): Promise&amp;lt;{cancelled}&amp;gt;&lt;br/&gt;+ fork(entryId, options?): Promise&amp;lt;{cancelled, selectedText?}&amp;gt;&lt;br/&gt;+ importFromJsonl(path, cwdOverride?): Promise&amp;lt;{cancelled}&amp;gt;&lt;br/&gt;+ dispose(): Promise&amp;lt;void&amp;gt;&lt;br/&gt;- emitBeforeSwitch(reason, target?): Promise&amp;lt;{cancelled}&amp;gt;&lt;br/&gt;- emitBeforeFork(entryId, options): Promise&amp;lt;{cancelled}&amp;gt;&lt;br/&gt;- teardownCurrent(reason, target?): Promise&amp;lt;void&amp;gt;&lt;br/&gt;- apply(result): void&lt;br/&gt;- finishSessionReplacement(withSession?): Promise&amp;lt;void&amp;gt;&lt;/p&gt;" style="verticalAlign=top;align=left;overflow=fill;html=1;whiteSpace=wrap;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=12;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="540" y="90" width="540" height="700" as="geometry" />
+        </mxCell>
+
+        <mxCell id="result" value="&lt;p style=&quot;margin:6px 0 4px 0;text-align:center;&quot;&gt;&lt;i&gt;&amp;laquo;interface&amp;raquo;&lt;/i&gt;&lt;br/&gt;&lt;b&gt;CreateAgentSessionRuntimeResult&lt;/b&gt;&lt;/p&gt;&lt;hr size=&quot;1&quot;/&gt;&lt;p style=&quot;margin:8px 10px;font-size:11px;line-height:1.45;&quot;&gt;+ session: AgentSession&lt;br/&gt;+ extensionsResult: LoadExtensionsResult&lt;br/&gt;+ modelFallbackMessage?: string&lt;br/&gt;+ services: AgentSessionServices&lt;br/&gt;+ diagnostics: Diagnostic[]&lt;/p&gt;" style="verticalAlign=top;align=left;overflow=fill;html=1;whiteSpace=wrap;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="1180" y="90" width="460" height="200" as="geometry" />
+        </mxCell>
+
+        <mxCell id="fn" value="&lt;p style=&quot;margin:6px 0 4px 0;text-align:center;&quot;&gt;&lt;i&gt;&amp;laquo;function&amp;raquo;&lt;/i&gt;&lt;br/&gt;&lt;b&gt;createAgentSessionRuntime()&lt;/b&gt;&lt;/p&gt;&lt;hr size=&quot;1&quot;/&gt;&lt;p style=&quot;margin:8px 10px;font-size:11px;line-height:1.45;&quot;&gt;+ createAgentSessionRuntime(factory, options): Promise&amp;lt;AgentSessionRuntime&amp;gt;&lt;br/&gt;&lt;br/&gt;调用 factory，再 new AgentSessionRuntime。&lt;br/&gt;同一 factory 会留给后续替换复用。&lt;/p&gt;" style="verticalAlign=top;align=left;overflow=fill;html=1;whiteSpace=wrap;fillColor=#ffe6cc;strokeColor=#d79b00;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="1180" y="330" width="460" height="170" as="geometry" />
+        </mxCell>
+
+        <mxCell id="session" value="&lt;p style=&quot;margin:6px 0 4px 0;text-align:center;&quot;&gt;&lt;b&gt;AgentSession&lt;/b&gt;&lt;/p&gt;&lt;hr size=&quot;1&quot;/&gt;&lt;p style=&quot;margin:8px 10px;font-size:11px;line-height:1.45;&quot;&gt;+ agent: Agent&lt;br/&gt;+ sessionManager: SessionManager&lt;br/&gt;+ settingsManager: SettingsManager&lt;br/&gt;+ extensionRunner: ExtensionRunner&lt;/p&gt;&lt;hr size=&quot;1&quot;/&gt;&lt;p style=&quot;margin:8px 10px;font-size:11px;line-height:1.45;&quot;&gt;+ prompt(...)&lt;br/&gt;+ abort(): Promise&amp;lt;void&amp;gt;&lt;br/&gt;+ dispose(): void&lt;/p&gt;" style="verticalAlign=top;align=left;overflow=fill;html=1;whiteSpace=wrap;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="40" y="420" width="400" height="230" as="geometry" />
+        </mxCell>
+
+        <mxCell id="services" value="&lt;p style=&quot;margin:6px 0 4px 0;text-align:center;&quot;&gt;&lt;i&gt;&amp;laquo;interface&amp;raquo;&lt;/i&gt;&lt;br/&gt;&lt;b&gt;AgentSessionServices&lt;/b&gt;&lt;/p&gt;&lt;hr size=&quot;1&quot;/&gt;&lt;p style=&quot;margin:8px 10px;font-size:11px;line-height:1.45;&quot;&gt;+ cwd: string&lt;br/&gt;+ agentDir: string&lt;br/&gt;+ modelRuntime: ModelRuntime&lt;br/&gt;+ settingsManager: SettingsManager&lt;br/&gt;+ resourceLoader: ResourceLoader&lt;br/&gt;+ diagnostics: Diagnostic[]&lt;/p&gt;" style="verticalAlign=top;align=left;overflow=fill;html=1;whiteSpace=wrap;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="1180" y="540" width="460" height="220" as="geometry" />
+        </mxCell>
+
+        <mxCell id="error-base" value="&lt;p style=&quot;margin:8px 0;text-align:center;&quot;&gt;&lt;b&gt;Error&lt;/b&gt;&lt;/p&gt;" style="verticalAlign=middle;align=center;html=1;whiteSpace=wrap;fillColor=#f5f5f5;strokeColor=#666666;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="40" y="700" width="180" height="50" as="geometry" />
+        </mxCell>
+
+        <mxCell id="import-err" value="&lt;p style=&quot;margin:6px 0 4px 0;text-align:center;&quot;&gt;&lt;b&gt;SessionImportFileNotFoundError&lt;/b&gt;&lt;/p&gt;&lt;hr size=&quot;1&quot;/&gt;&lt;p style=&quot;margin:8px 10px;font-size:11px;line-height:1.45;&quot;&gt;+ filePath: string&lt;br/&gt;+ constructor(filePath: string)&lt;/p&gt;" style="verticalAlign=top;align=left;overflow=fill;html=1;whiteSpace=wrap;fillColor=#f8cecc;strokeColor=#b85450;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="40" y="800" width="400" height="120" as="geometry" />
+        </mxCell>
+
+        <mxCell id="legend" value="图例" style="rounded=0;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#666666;verticalAlign=top;fontStyle=1;align=left;spacingLeft=8;spacingTop=4;" vertex="1" parent="1">
+          <mxGeometry x="40" y="960" width="400" height="130" as="geometry" />
+        </mxCell>
+        <mxCell id="leg1" value="" style="rounded=0;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="legend">
+          <mxGeometry x="10" y="30" width="30" height="16" as="geometry" />
+        </mxCell>
+        <mxCell id="leg1t" value="核心类（槽）" style="text;html=1;align=left;verticalAlign=middle;fontSize=11;" vertex="1" parent="legend">
+          <mxGeometry x="50" y="28" width="140" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="leg2" value="" style="rounded=0;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="legend">
+          <mxGeometry x="200" y="30" width="30" height="16" as="geometry" />
+        </mxCell>
+        <mxCell id="leg2t" value="类型 / 接口" style="text;html=1;align=left;verticalAlign=middle;fontSize=11;" vertex="1" parent="legend">
+          <mxGeometry x="240" y="28" width="140" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="leg3" value="" style="rounded=0;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="legend">
+          <mxGeometry x="10" y="54" width="30" height="16" as="geometry" />
+        </mxCell>
+        <mxCell id="leg3t" value="对话实例" style="text;html=1;align=left;verticalAlign=middle;fontSize=11;" vertex="1" parent="legend">
+          <mxGeometry x="50" y="52" width="140" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="leg4" value="" style="rounded=0;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="legend">
+          <mxGeometry x="200" y="54" width="30" height="16" as="geometry" />
+        </mxCell>
+        <mxCell id="leg4t" value="cwd 绑定服务" style="text;html=1;align=left;verticalAlign=middle;fontSize=11;" vertex="1" parent="legend">
+          <mxGeometry x="240" y="52" width="150" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="leg5" value="" style="rounded=0;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;" vertex="1" parent="legend">
+          <mxGeometry x="10" y="78" width="30" height="16" as="geometry" />
+        </mxCell>
+        <mxCell id="leg5t" value="组合根入口函数" style="text;html=1;align=left;verticalAlign=middle;fontSize=11;" vertex="1" parent="legend">
+          <mxGeometry x="50" y="76" width="140" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="leg6" value="" style="rounded=0;html=1;fillColor=#f8cecc;strokeColor=#b85450;" vertex="1" parent="legend">
+          <mxGeometry x="200" y="78" width="30" height="16" as="geometry" />
+        </mxCell>
+        <mxCell id="leg6t" value="导入失败错误" style="text;html=1;align=left;verticalAlign=middle;fontSize=11;" vertex="1" parent="legend">
+          <mxGeometry x="240" y="76" width="140" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="leg7" value="◇ 聚合（当前槽，可替换）    ┄┄&gt; 依赖 / 抛出    ▷ 泛化" style="text;html=1;align=left;verticalAlign=middle;fontSize=11;" vertex="1" parent="legend">
+          <mxGeometry x="10" y="100" width="380" height="20" as="geometry" />
+        </mxCell>
+
+        <mxCell id="e-factory-runtime" value="uses / injected" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;endArrow=open;endFill=0;strokeColor=#666666;fontSize=11;labelBackgroundColor=#ffffff;exitX=1;exitY=0.35;exitDx=0;exitDy=0;entryX=0;entryY=0.12;entryDx=0;entryDy=0;" edge="1" parent="1" source="factory" target="runtime">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e-fn-runtime" value="«create»" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;endArrow=open;endFill=0;strokeColor=#d79b00;fontSize=11;labelBackgroundColor=#ffffff;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.22;entryDx=0;entryDy=0;" edge="1" parent="1" source="fn" target="runtime">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e-runtime-session" value="1  当前" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;startArrow=diamondThin;startFill=0;endArrow=none;strokeColor=#6c8ebf;fontSize=11;labelBackgroundColor=#ffffff;exitX=0;exitY=0.42;exitDx=0;exitDy=0;entryX=1;entryY=0.45;entryDx=0;entryDy=0;" edge="1" parent="1" source="runtime" target="session">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e-runtime-services" value="1  当前" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;startArrow=diamondThin;startFill=0;endArrow=none;strokeColor=#82b366;fontSize=11;labelBackgroundColor=#ffffff;exitX=1;exitY=0.72;exitDx=0;exitDy=0;entryX=0;entryY=0.45;entryDx=0;entryDy=0;" edge="1" parent="1" source="runtime" target="services">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e-inherit" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=0;endSize=12;strokeColor=#666666;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" edge="1" parent="1" source="import-err" target="error-base">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e-throws" value="throws" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;endArrow=open;endFill=0;strokeColor=#b85450;fontSize=11;labelBackgroundColor=#ffffff;exitX=0;exitY=0.88;exitDx=0;exitDy=0;entryX=1;entryY=0.55;entryDx=0;entryDy=0;" edge="1" parent="1" source="runtime" target="import-err">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
