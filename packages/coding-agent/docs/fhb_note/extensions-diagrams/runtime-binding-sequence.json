@@ -1,0 +1,56 @@
+{
+  "schema_version": 1,
+  "diagram_type": "sequence",
+  "meta": {
+    "title": "Shared Runtime Binding and pi.sendMessage()",
+    "subtitle": "The API keeps one runtime reference; AgentSession later replaces its action stubs",
+    "output": "runtime-binding-sequence.html",
+    "visual_preset": "signal-flow",
+    "quality_profile": "showcase",
+    "viewBox": [960, 900],
+    "views": [
+      { "id": "load", "label": "Loading", "focus": ["loader", "runtime", "api", "extension"], "note": "Loader creates the shared object and gives an API closure to extension code." },
+      { "id": "bind", "label": "Binding", "focus": ["session", "runner", "runtime"], "note": "AgentSession supplies closures; Runner writes them into the same runtime object." },
+      { "id": "call", "label": "Later API call", "focus": ["extension", "api", "runtime", "session"], "note": "pi.sendMessage reads the current runtime.sendMessage and reaches the live session." }
+    ]
+  },
+  "participants": [
+    { "id": "loader", "type": "backend", "label": "Loader", "sublabel": "loader.ts" },
+    { "id": "runtime", "type": "cloud", "label": "Runtime", "sublabel": "shared mutable object" },
+    { "id": "api", "type": "frontend", "label": "ExtensionAPI", "sublabel": "pi" },
+    { "id": "extension", "type": "external", "label": "Extension", "sublabel": "factory + handlers" },
+    { "id": "session", "type": "backend", "label": "AgentSession", "sublabel": "live conversation" },
+    { "id": "runner", "type": "backend", "label": "Runner", "sublabel": "bindCore" }
+  ],
+  "segments": [
+    { "from": 150, "to": 354, "label": "Load and register" },
+    { "from": 370, "to": 562, "label": "Bind live session actions" },
+    { "from": 580, "to": 790, "label": "Use the API later" }
+  ],
+  "messages": [
+    { "from": "loader", "to": "runtime", "y": 180, "label": "createExtensionRuntime()", "variant": "emphasis", "note": "sendMessage initially points to notInitialized" },
+    { "from": "loader", "to": "api", "y": 226, "label": "createExtensionAPI(extension, runtime)" },
+    { "from": "loader", "to": "extension", "y": 272, "label": "factory(pi)" },
+    { "from": "extension", "to": "api", "y": 318, "label": "registerTool / on / registerCommand" },
+    { "from": "session", "to": "runner", "y": 400, "label": "new ExtensionRunner(..., runtime)", "variant": "emphasis" },
+    { "from": "session", "to": "runner", "y": 446, "label": "bindCore(real actions)", "variant": "emphasis" },
+    { "from": "runner", "to": "runtime", "y": 492, "label": "runtime.sendMessage = action", "variant": "emphasis", "note": "Mutates the same object held by ExtensionAPI" },
+    { "from": "runner", "to": "session", "y": 538, "label": "binding complete", "variant": "return" },
+    { "from": "extension", "to": "api", "y": 620, "label": "pi.sendMessage(message)" },
+    { "from": "api", "to": "runtime", "y": 666, "label": "runtime.sendMessage(message)", "variant": "emphasis" },
+    { "from": "runtime", "to": "session", "y": 712, "label": "bound closure calls sendCustomMessage", "variant": "emphasis" },
+    { "from": "session", "to": "extension", "y": 758, "label": "message enters current session", "variant": "return" }
+  ],
+  "activations": [
+    { "participant": "loader", "from": 174, "to": 332, "type": "backend" },
+    { "participant": "session", "from": 394, "to": 546, "type": "backend" },
+    { "participant": "runner", "from": 394, "to": 546, "type": "backend" },
+    { "participant": "api", "from": 614, "to": 674, "type": "frontend" },
+    { "participant": "runtime", "from": 660, "to": 720, "type": "cloud" },
+    { "participant": "session", "from": 706, "to": 766, "type": "backend" }
+  ],
+  "cards": [
+    { "dot": "emerald", "title": "Why this works", "items": ["ExtensionAPI closes over the runtime object, not the initial function value", "bindCore changes properties on that exact object"] },
+    { "dot": "orange", "title": "Load-time guard", "items": ["Calling session actions before bindCore throws", "Registration methods remain usable during factory execution"] }
+  ]
+}
