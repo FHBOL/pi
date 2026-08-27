@@ -61,6 +61,7 @@ cp permission-gate.ts ~/.pi/agent/extensions/
 | `model-status.ts` | 通过 `model_select` 钩子在状态栏显示模型变更 |
 | `snake.ts` | 贪吃蛇游戏，含自定义 UI、键盘处理与会话持久化 |
 | `tic-tac-toe.ts` | 与 agent 对战的井字棋，工具使用 `executionMode: "sequential"` 以避免共享光标状态上的竞态 |
+| `hi.ts` | 最小斜杠命令示例：`/hi [args]` 通过 `sendUserMessage` 发送 `hi` + 参数 |
 | `send-user-message.ts` | 演示从扩展发送用户消息的 `pi.sendUserMessage()` |
 | `timed-confirm.ts` | 演示用 AbortSignal 自动关闭 `ctx.ui.confirm()` 与 `ctx.ui.select()` 对话框 |
 | `rpc-demo.ts` | 练习所有支持 RPC 的扩展 UI 方法；可与 [`examples/rpc-extension-ui.ts`](../rpc-extension-ui.ts) 配合使用 |

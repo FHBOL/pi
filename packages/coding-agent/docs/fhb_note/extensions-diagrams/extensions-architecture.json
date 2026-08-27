@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "Pi Extension System Architecture",
+    "subtitle": "From configured extension sources to live AgentSession behavior",
+    "output": "extensions-architecture.html",
+    "visual_preset": "blueprint",
+    "quality_profile": "showcase",
+    "repository": { "url": "https://github.com/FHBOL/pi", "revision": "86e5e4a86754e007b9d59a342e139def3c7e98a0" },
+    "views": [
+      { "id": "load", "label": "Loading path", "focus": ["sources", "resourceLoader", "loader", "registrations"], "note": "Resolve enabled sources, import each module, and collect registrations." },
+      { "id": "bind", "label": "Session binding", "focus": ["registrations", "runner", "session"], "note": "The session binds real actions into the shared runtime through the runner." },
+      { "id": "execute", "label": "Runtime behavior", "focus": ["session", "runner", "toolRegistry"], "note": "Events, tools, and commands execute after binding." }
+    ]
+  },
+  "layout": { "mode": "grid", "origin": [48, 90], "cols": 4, "gapX": 76, "gapY": 96, "cellW": 176, "cellH": 82 },
+  "components": [
+    { "id": "sources", "type": "external", "label": "Extension Sources", "sublabel": "settings · packages · CLI", "row": 0, "col": 0 },
+    { "id": "resourceLoader", "type": "backend", "label": "ResourceLoader", "sublabel": "resolve enabled paths + trust", "row": 0, "col": 1, "sources": [{ "path": "packages/coding-agent/src/core/resource-loader.ts", "line": 387, "label": "reload" }] },
+    { "id": "loader", "type": "backend", "label": "Extension Loader", "sublabel": "jiti import + factory execution", "row": 0, "col": 2, "sources": [{ "path": "packages/coding-agent/src/core/extensions/loader.ts", "line": 436, "label": "load module" }] },
+    { "id": "registrations", "type": "database", "label": "Loaded Extensions", "sublabel": "handlers · tools · commands", "row": 0, "col": 3, "sources": [{ "path": "packages/coding-agent/src/core/extensions/loader.ts", "line": 469, "label": "extension record" }] },
+    { "id": "session", "type": "backend", "label": "AgentSession", "sublabel": "owns the live conversation", "row": 1, "col": 0, "sources": [{ "path": "packages/coding-agent/src/core/agent-session.ts", "line": 2589, "label": "build runtime" }] },
+    { "id": "runner", "type": "backend", "label": "ExtensionRunner", "sublabel": "bind + dispatch", "row": 1, "col": 1, "sources": [{ "path": "packages/coding-agent/src/core/extensions/runner.ts", "line": 314, "label": "bindCore" }] },
+    { "id": "toolRegistry", "type": "messagebus", "label": "Registries", "sublabel": "tools · commands · providers", "row": 1, "col": 2, "sources": [{ "path": "packages/coding-agent/src/core/agent-session.ts", "line": 2515, "label": "tool registry" }] }
+  ],
+  "connections": [
+    { "id": "sources-resources", "from": "sources", "to": "resourceLoader" },
+    { "id": "resources-loader", "from": "resourceLoader", "to": "loader", "label": "enabled paths" },
+    { "id": "loader-registrations", "from": "loader", "to": "registrations" },
+    { "id": "session-runner", "from": "session", "to": "runner", "label": "bind real actions", "variant": "emphasis" },
+    { "id": "runner-tools", "from": "runner", "to": "toolRegistry" },
+    { "id": "registrations-tools", "from": "registrations", "to": "toolRegistry", "variant": "dashed" }
+  ],
+  "cards": [
+    { "dot": "cyan", "title": "Load", "items": ["ResourceLoader decides what is enabled", "Loader executes TypeScript factories with jiti"] },
+    { "dot": "emerald", "title": "Bind", "items": ["ExtensionAPI and Runner share one runtime object", "AgentSession replaces runtime stubs with live closures"] },
+    { "dot": "violet", "title": "Run", "items": ["Runner dispatches lifecycle handlers", "Registries expose extension tools and commands"] }
+  ]
+}

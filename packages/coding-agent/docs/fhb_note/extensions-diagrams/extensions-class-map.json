@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "Extension Objects — UML-style Relationship Map",
+    "subtitle": "The important ownership and reference relationships, not a complete formal UML model",
+    "output": "extensions-class-map.html",
+    "visual_preset": "editorial",
+    "quality_profile": "showcase",
+    "repository": { "url": "https://github.com/FHBOL/pi", "revision": "86e5e4a86754e007b9d59a342e139def3c7e98a0" },
+    "views": [
+      { "id": "load-objects", "label": "Objects created while loading", "focus": ["runtime", "extension", "api"], "note": "The loader creates one shared runtime and one registration record per extension." },
+      { "id": "shared-reference", "label": "Shared runtime reference", "focus": ["api", "runtime", "runner", "session"], "note": "API and Runner retain the same mutable runtime object; AgentSession supplies its functions." },
+      { "id": "events", "label": "Registered handlers", "focus": ["extension", "runner"], "note": "Extension stores registered handlers; Runner reads and dispatches them when core events occur." }
+    ]
+  },
+  "layout": { "mode": "grid", "origin": [48, 90], "cols": 3, "gapX": 100, "gapY": 112, "cellW": 170, "cellH": 88 },
+  "components": [
+    { "id": "extension", "type": "database", "label": "Extension", "sublabel": "registered capabilities", "row": 0, "col": 0, "sources": [{ "path": "packages/coding-agent/src/core/extensions/types.ts", "line": 1696 }] },
+    { "id": "api", "type": "frontend", "label": "ExtensionAPI", "sublabel": "pi passed to factory", "row": 0, "col": 1, "sources": [{ "path": "packages/coding-agent/src/core/extensions/types.ts", "line": 1198 }] },
+    { "id": "runtime", "type": "cloud", "label": "ExtensionRuntime", "sublabel": "mutable actions + state", "row": 0, "col": 2, "sources": [{ "path": "packages/coding-agent/src/core/extensions/types.ts", "line": 1693 }] },
+    { "id": "session", "type": "backend", "label": "AgentSession", "sublabel": "live conversation", "row": 1, "col": 1, "sources": [{ "path": "packages/coding-agent/src/core/agent-session.ts", "line": 2341 }] },
+    { "id": "runner", "type": "backend", "label": "ExtensionRunner", "sublabel": "bind + dispatch", "row": 1, "col": 2, "sources": [{ "path": "packages/coding-agent/src/core/extensions/runner.ts", "line": 299 }] }
+  ],
+  "connections": [
+    { "id": "api-extension", "from": "api", "to": "extension", "label": "registers" },
+    { "id": "api-runtime", "from": "api", "to": "runtime", "label": "delegates", "variant": "emphasis" },
+    { "id": "session-runner", "from": "session", "to": "runner", "label": "owns" },
+    { "id": "runner-runtime", "from": "runner", "to": "runtime", "label": "binds", "variant": "emphasis" }
+  ],
+  "cards": [
+    { "dot": "emerald", "title": "Central idea", "items": ["ExtensionAPI and ExtensionRunner reference the same ExtensionRuntime object", "bindCore mutates that object instead of replacing the API"] },
+    { "dot": "cyan", "title": "Registration vs execution", "items": ["Extension stores what was registered", "Runner owns extensions[] and dispatches their handlers"] }
+  ]
+}

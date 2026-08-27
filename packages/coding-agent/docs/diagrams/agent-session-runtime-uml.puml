@@ -1,0 +1,130 @@
+@startuml AgentSessionRuntime
+title AgentSessionRuntime UML 类图
+caption 单槽持有当前 session + services；替换时覆盖槽，不 new 自身
+
+skinparam shadowing false
+skinparam roundcorner 6
+skinparam classAttributeIconSize 0
+skinparam linetype ortho
+skinparam nodesep 60
+skinparam ranksep 70
+hide circle
+hide empty methods
+
+skinparam class {
+  BackgroundColor<<core>> #FFF2CC
+  BorderColor<<core>> #D6B656
+  BackgroundColor<<type>> #E1D5E7
+  BorderColor<<type>> #9673A6
+  BackgroundColor<<session>> #DAE8FC
+  BorderColor<<session>> #6C8EBF
+  BackgroundColor<<services>> #D5E8D4
+  BorderColor<<services>> #82B366
+  BackgroundColor<<fn>> #FFE6CC
+  BorderColor<<fn>> #D79B00
+  BackgroundColor<<error>> #F8CECC
+  BorderColor<<error>> #B85450
+}
+
+class AgentSessionRuntime <<core>> {
+  - rebindSession?: (session) => Promise<void>
+  - beforeSessionInvalidate?: () => void
+  - _session: AgentSession
+  - _services: AgentSessionServices
+  - createRuntime: CreateAgentSessionRuntimeFactory
+  - _diagnostics: Diagnostic[]
+  - _modelFallbackMessage?: string
+  --
+  + session: AgentSession {readonly}
+  + services: AgentSessionServices {readonly}
+  + cwd: string {readonly}
+  + diagnostics: readonly Diagnostic[] {readonly}
+  + modelFallbackMessage?: string {readonly}
+  --
+  + constructor(session, services, factory, diagnostics?, fallback?)
+  + setRebindSession(cb?): void
+  + setBeforeSessionInvalidate(cb?): void
+  + switchSession(path, options?): Promise<{cancelled}>
+  + newSession(options?): Promise<{cancelled}>
+  + fork(entryId, options?): Promise<{cancelled, selectedText?}>
+  + importFromJsonl(path, cwdOverride?): Promise<{cancelled}>
+  + dispose(): Promise<void>
+  --
+  - emitBeforeSwitch(reason, target?): Promise<{cancelled}>
+  - emitBeforeFork(entryId, options): Promise<{cancelled}>
+  - teardownCurrent(reason, target?): Promise<void>
+  - apply(result): void
+  - finishSessionReplacement(withSession?): Promise<void>
+}
+
+interface CreateAgentSessionRuntimeFactory <<type>> {
+  + create(options): Promise<CreateAgentSessionRuntimeResult>
+}
+
+note right of CreateAgentSessionRuntimeFactory
+  options:
+  cwd, agentDir, sessionManager,
+  sessionStartEvent?,
+  projectTrustContext?
+end note
+
+interface CreateAgentSessionRuntimeResult <<type>> {
+  + session: AgentSession
+  + extensionsResult: LoadExtensionsResult
+  + modelFallbackMessage?: string
+  + services: AgentSessionServices
+  + diagnostics: Diagnostic[]
+}
+
+class createAgentSessionRuntime <<fn>> {
+  + createAgentSessionRuntime(factory, options): Promise<AgentSessionRuntime>
+}
+
+class AgentSession <<session>> {
+  + agent: Agent
+  + sessionManager: SessionManager
+  + settingsManager: SettingsManager
+  + extensionRunner: ExtensionRunner
+  --
+  + prompt(...)
+  + abort(): Promise<void>
+  + dispose(): void
+}
+
+interface AgentSessionServices <<services>> {
+  + cwd: string
+  + agentDir: string
+  + modelRuntime: ModelRuntime
+  + settingsManager: SettingsManager
+  + resourceLoader: ResourceLoader
+  + diagnostics: Diagnostic[]
+}
+
+class SessionImportFileNotFoundError <<error>> {
+  + filePath: string
+  + constructor(filePath: string)
+}
+
+AgentSessionRuntime o-- "1 当前" AgentSession
+AgentSessionRuntime o-- "1 当前" AgentSessionServices
+AgentSessionRuntime ..> CreateAgentSessionRuntimeFactory : uses / injected
+CreateAgentSessionRuntimeFactory ..> CreateAgentSessionRuntimeResult : returns
+createAgentSessionRuntime ..> AgentSessionRuntime : <<create>>
+createAgentSessionRuntime ..> CreateAgentSessionRuntimeFactory : calls
+Error <|-- SessionImportFileNotFoundError
+AgentSessionRuntime ..> SessionImportFileNotFoundError : throws
+
+legend left
+  |= 颜色 |= 含义 |
+  | <#FFF2CC> | 核心类（槽） |
+  | <#E1D5E7> | 类型 / 接口 |
+  | <#DAE8FC> | 对话实例 |
+  | <#D5E8D4> | cwd 绑定服务 |
+  | <#FFE6CC> | 组合根入口函数 |
+  | <#F8CECC> | 导入失败错误 |
+  o-- 聚合（当前槽，可替换）
+  ..> 依赖 / 抛出
+  <|-- 泛化
+endlegend
+
+@enduml

@@ -1,0 +1,47 @@
+{
+  "schema_version": 1,
+  "diagram_type": "workflow",
+  "meta": {
+    "title": "Extension Loading Workflow",
+    "subtitle": "Resolve sources, import factories, collect capabilities, then attach them to AgentSession",
+    "output": "extensions-load-workflow.html",
+    "visual_preset": "signal-flow",
+    "quality_profile": "showcase",
+    "viewBox": [880, 660],
+    "views": [
+      { "id": "resolve", "label": "Resolve sources", "focus": ["resolvePaths", "trust"], "note": "Configuration, package metadata, CLI paths, and trust determine the final path list." },
+      { "id": "load", "label": "Load factories", "focus": ["runtime", "factory"], "note": "jiti imports each module; its factory receives an API backed by the shared runtime." },
+      { "id": "activate", "label": "Activate session", "focus": ["factory", "activateSession"], "note": "AgentSession creates the runner, binds actions, and refreshes runtime registries." }
+    ]
+  },
+  "lanes": [
+    { "id": "resources", "label": "Resource resolution" },
+    { "id": "loading", "label": "Extension loading" },
+    { "id": "session", "label": "Session activation" },
+    { "id": "errors", "label": "Failure isolation", "variant": "exception" }
+  ],
+  "phases": [
+    { "id": "discovery", "label": "Resolve", "fromCol": 0, "toCol": 2 },
+    { "id": "registration", "label": "Import + register", "fromCol": 3, "toCol": 4, "variant": "emphasis" },
+    { "id": "activation", "label": "Activate", "fromCol": 5, "toCol": 5, "variant": "dashed" }
+  ],
+  "mainPath": ["resolvePaths", "trust", "runtime", "factory", "activateSession"],
+  "nodes": [
+    { "id": "resolvePaths", "lane": "resources", "col": 0, "type": "external", "label": "Resolve", "width": 64 },
+    { "id": "trust", "lane": "resources", "col": 2, "type": "security", "label": "Trust", "width": 64 },
+    { "id": "runtime", "lane": "loading", "col": 2, "type": "cloud", "label": "Runtime", "width": 64 },
+    { "id": "factory", "lane": "loading", "col": 4, "type": "frontend", "label": "Factory", "width": 64 },
+    { "id": "activateSession", "lane": "session", "col": 5, "type": "backend", "label": "Activate", "width": 64 }
+  ],
+  "edges": [
+    { "id": "resolve-trust", "from": "resolvePaths", "to": "trust", "role": "main" },
+    { "id": "trust-runtime", "from": "trust", "to": "runtime", "role": "main" },
+    { "id": "runtime-factory", "from": "runtime", "to": "factory", "role": "main" },
+    { "id": "factory-activate", "from": "factory", "to": "activateSession", "role": "main", "variant": "emphasis" }
+  ],
+  "cards": [
+    { "dot": "cyan", "title": "Discovery", "items": ["ResourceLoader resolves sources before loader execution", "Project-local code depends on trust"] },
+    { "dot": "emerald", "title": "Registration", "items": ["jiti imports TypeScript or JavaScript modules", "Factories populate Extension maps", "All APIs share one runtime and event bus"] },
+    { "dot": "orange", "title": "Isolation", "items": ["One failed extension becomes a diagnostic", "Other extension paths continue loading"] }
+  ]
+}
