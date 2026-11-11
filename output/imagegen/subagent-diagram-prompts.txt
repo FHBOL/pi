@@ -1,0 +1,26 @@
+Built-in image_gen prompts
+
+Image 1
+Use case: infographic-diagram
+Create a high-resolution Chinese technical architecture diagram for developers titled "Subagent 扩展 · 架构图". Landscape, white background, restrained blue/teal/amber boxes, large readable Chinese sans serif text, thin orthogonal arrows, ample whitespace, no decoration.
+Exact architecture:
+Left block "主 pi 进程" contains "主模型" pointing via "subagent 参数" to "扩展 index.ts". Extension contains "execute：校验与调度", "runSingleAgent：启动子进程", "事件解析与结果汇总", "renderResult：终端展示".
+Above extension, small "agents.ts" block reads "用户 agents / 项目 agents" and supplies "角色提示词 · tools · model" to execution. Small "prompts/*.md" points ONLY to main model, labelled "工作流提示词".
+Right block "独立 pi 子进程" shows three small process boxes "任务 A", "任务 B", "任务 C", each labelled "独立上下文". Parent spawns these with a labelled outward arrow "spawn · 每任务一个新进程". A command strip reads exactly "pi --mode json -p --no-session".
+A separate arrow FROM subprocess group BACK TO extension parser is labelled "stdout · JSONL 事件". Parser points to main model via "content：最终文本"; parser points to terminal render via "details / onUpdate：过程与用量".
+Bottom shared storage block "共享工作目录 cwd" connected to subprocess group, caption "上下文隔离 ≠ 文件系统隔离". A footer says "不自动继承主会话历史；角色提示词以 --append-system-prompt 追加".
+Ensure clear arrow directions, no direct subprocess-to-subprocess messaging. This is an explanatory image, not code or a screenshot. Render labels verbatim.
+
+Image 2
+Use case: infographic-diagram
+Create a high-resolution Chinese technical flowchart titled "Subagent 扩展 · 执行流程". Portrait or landscape with enough space, white background, clean blue/teal boxes, amber decision diamonds, red error exits. Large readable Chinese labels and orthogonal directional arrows. Match a professional engineering architecture diagram.
+Top central flow: "主模型调用 subagent" -> "发现 agents，读取模型默认值" -> diamond "恰好一种模式？", no -> "返回参数错误"; yes -> "按需确认项目 agent" -> diamond "选择模式".
+Three columns below mode:
+"single" -> "执行一个任务" -> "返回最终文本；失败标记 isError"
+"parallel" -> "检查任务数 ≤ 8" -> "并发池：最多 4 个任务" -> "等待全部任务" -> "汇总全部输出，每任务上限 50 KiB"
+"chain" -> "替换 {previous}" -> "执行当前步骤" -> diamond "成功？", no -> "停止链并返回错误"; yes -> "保存本步最终文本" -> diamond "还有下一步？", yes arrow loops back to "替换 {previous}", no -> "返回最后一步输出".
+Place a distinct bottom inset titled "公共执行器 runSingleAgent" with a horizontal or vertical numbered sequence:
+"1 查找 agent 配置" -> "2 写临时系统提示词" -> "3 spawn 新 pi 进程" -> "4 按行解析 JSON 事件" -> "5 收集消息与 usage，onUpdate 刷新" -> "6 等待退出并清理临时文件".
+Inset note "message_end：完整消息；message_update：当前扩展未消费".
+Footer two exact short statements: "{previous} 仅传递紧邻上一步的最终文本" and "每一步都是新进程；文件修改通过共享目录传递".
+Do not connect single and parallel to the chain loop. Do not imply parallel task failure automatically cancels other tasks. No invented persistence, message bus, server, or database. Keep all labels short and verbatim.
